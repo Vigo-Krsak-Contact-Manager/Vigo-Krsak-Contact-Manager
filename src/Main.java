@@ -1,19 +1,22 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
 
-    public void readAllContent() {
+    public List<String> readAllContent() {
+        try {
+            Path contactPath = Paths.get("data", "contacts.txt");
+            List<String> contactList = Files.readAllLines(contactPath);
 
-        Path groceriesPath = Paths.get("data", "groceries.txt");
-        List<String> groceryList = Files.readAllLines(groceriesPath);
+            return contactList;
 
-        for (int i = 0; i < groceryList.size(); i += 1) {
-            System.out.println((i + 1) + ": " + groceryList.get(i));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ArrayList<>();
         }
-
     }
 
     public static void main(String[] args) {
