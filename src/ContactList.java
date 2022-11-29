@@ -1,3 +1,4 @@
+import javax.naming.spi.DirectoryManager;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,23 @@ public class ContactList implements  Serializable {
     private Scanner inputScanner;
 
     public ContactList(Scanner inputScanner){
+        try {
+            //Create the directory if it does not exist
+            Path dataDirectoryPath = Paths.get("data");
+            if (Files.notExists(dataDirectoryPath)) {
+                Files.createDirectories(dataDirectoryPath);
+            }
+
+            //Create the file if it does not exist
+            Path filePath = Paths.get("date","contacts.txt");
+            if(Files.notExists(filePath)){
+                Files.createFile(filePath);
+            }
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        this.contactList = new ArrayList<>();
         this.inputScanner = inputScanner;
         readAllContent();
     }
@@ -31,7 +49,7 @@ public class ContactList implements  Serializable {
     public void writeAllContacts() {
         try {
             //Get a path to the file
-            Path filepath = Paths.get("data", "./contacts.txt");
+            Path filepath = Paths.get("data", "contacts.txt");
 
             //If the file does not exist create it
             if(Files.notExists(filepath)) {
@@ -45,7 +63,7 @@ public class ContactList implements  Serializable {
             ObjectOutputStream outStream = new ObjectOutputStream(stream);
 
             //Iterate through the contacts and save the objects to the file
-            outStream.writeObject(this);
+            outStream.writeObject(this.contactList);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -53,6 +71,7 @@ public class ContactList implements  Serializable {
     }
 
     public void readAllContent() {
+        System.out.println("Reading the persisted data file contacts.txt");
         try {
             //Get the path to the file
             Path contactPath = Paths.get("data", "contacts.txt");
@@ -69,10 +88,12 @@ public class ContactList implements  Serializable {
             ObjectInputStream objInStream = new ObjectInputStream(inStream);
 
             //Create a temporary ContactList object from the contents of the file
-            ContactList tmp = (ContactList) objInStream.readObject();
+            List<Contact> tmp = (List<Contact>) objInStream.readObject();
+
+            System.out.println(tmp);
 
             //Steal its contact list and write it into this.contactList
-            this.contactList = tmp.contactList;
+            this.contactList = tmp;
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -116,9 +137,9 @@ public class ContactList implements  Serializable {
         System.out.println("2. Add a new contact.");
         System.out.println("3. Search a contact name.");
         System.out.println("4. Delete an existing contact.");
-        System.out.println("5. Exit.");
-        System.out.println("Enter an option (1, 2, 3, 4, or 5): ");
-        System.out.println();
+        System.out.println("5. Edit an existing contact.");
+        System.out.println("6. Exit.");
+        System.out.print("Enter an option (1, 2, 3, 4, 5, or 6): ");
         int userSelect = this.inputScanner.nextInt();
         this.inputScanner.nextLine();
         return userSelect;
@@ -166,7 +187,11 @@ public class ContactList implements  Serializable {
                     this.inputScanner.nextLine();
                     deleteContact(indexPicked);
                     break;
-                case 5: inLoop = false;
+                case 5: displayContacts(true);
+                    int inP = this.inputScanner.nextInt(); //inP = Index picked
+                    this.inputScanner.nextLine();
+                    editContact(inP);
+                case 6: inLoop = false;
                     break;
                 default:
                     System.out.println("Please enter a valid command.");
