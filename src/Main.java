@@ -6,6 +6,19 @@ import java.util.List;
 
 public class Main {
 
+    public void writeAllContacts(List<String> contacts) {
+        try {
+
+            Path filepath = Paths.get("data", "contacts.txt");
+            Files.write(filepath, contacts);
+
+        } catch (Exception e) {
+
+            System.out.println(e.getMessage());
+
+        }
+    }
+
     public List<String> readAllContent() {
         try {
             Path contactPath = Paths.get("data", "contacts.txt");
