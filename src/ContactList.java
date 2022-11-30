@@ -102,9 +102,16 @@ public class ContactList implements  Serializable {
     }
 
     // method to add contact
+    // added functionality to check for existing contact name
     public void addContact() {
 
         Contact newContact = readInContact();
+        List<Contact> matches = this.contactList.stream().filter((Contact contact)->contact.getName().equalsIgnoreCase(newContact.getName())).toList();
+        if (matches.size() > 0) {
+            System.out.println("This contact name already exists, try again.");
+            return;
+        }
+
         this.contactList.add(newContact);
         writeAllContacts();
 
@@ -144,6 +151,35 @@ public class ContactList implements  Serializable {
         this.inputScanner.nextLine();
         return userSelect;
     }
+
+    // method to separate numbers from string
+    public String extractInt(String str) {
+
+        str = str.replaceAll("[^\\d]", "");
+
+        str = str.trim();
+
+        str = str.replaceAll(" + ", "");
+
+        if (str.equals(" "))
+            return " -1 ";
+
+        return str;
+    }
+
+    // method to return formatted phone number
+    public String formatNumber(String phoneNumber) {
+
+        String number;
+
+        if (phoneNumber.length() == 7) {
+            number = phoneNumber.replaceFirst("(\\d{3})(\\d+)", "$2-$3");
+        } else {
+            number = phoneNumber.replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1) $2-$3");
+        }
+        return number;
+    }
+
     // method to display contacts
     public void displayContacts(boolean displayNumbers) {
         System.out.println("Name | Phone Number");
@@ -153,7 +189,7 @@ public class ContactList implements  Serializable {
             if (displayNumbers) {
                 System.out.printf("%d-", index++);
             }
-            System.out.println(contact.getName() + "|" + contact.getPhoneNumber());
+            System.out.println(contact.getName() + "|" + formatNumber(extractInt(contact.getPhoneNumber())));
         }
 
     }
