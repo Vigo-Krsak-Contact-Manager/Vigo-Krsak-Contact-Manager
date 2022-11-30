@@ -126,16 +126,16 @@ public class ContactList implements  Serializable {
     }
 
     // method to edit contact
-    public void editContact(int index) {
-
+    public Contact editContact(int index) {
         System.out.print("Edit the contact name: ");
         String newName = this.inputScanner.nextLine();
         System.out.print("Edit the contact phone number: ");
         String newPhone = this.inputScanner.nextLine();
-        this.contactList.get(index).setName(newName);
-        this.contactList.get(index).setPhoneNumber(newPhone);
-        writeAllContacts();
-
+        //Format the number before putting it in the Contact
+//        newPhone = formatNumber(extractInt(newPhone));
+        //Make the contact
+        Contact gatheredContact = new Contact(newName,newPhone);
+        return gatheredContact;
     }
 
     // method to create menu
@@ -173,7 +173,7 @@ public class ContactList implements  Serializable {
         String number;
 
         if (phoneNumber.length() == 7) {
-            number = phoneNumber.replaceFirst("(\\d{3})(\\d+)", "$2-$3");
+            number = phoneNumber.substring(0,3) + "-" + phoneNumber.substring(3);
         } else {
             number = phoneNumber.replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1) $2-$3");
         }
@@ -182,14 +182,15 @@ public class ContactList implements  Serializable {
 
     // method to display contacts
     public void displayContacts(boolean displayNumbers) {
-        System.out.println("Name | Phone Number");
-        System.out.println("--------------------");
+        System.out.printf("%-20s | %-20s|\n","Name","Phone Number");
+        System.out.printf("%s\n","-".repeat(44));
+//        System.out.printf("%-42s","-");
         int index = 0;
         for(Contact contact: this.contactList) {
             if (displayNumbers) {
                 System.out.printf("%d-", index++);
             }
-            System.out.println(contact.getName() + "|" + formatNumber(extractInt(contact.getPhoneNumber())));
+            System.out.printf("%-20s | %-20s|\n",contact.getName(),formatNumber(extractInt(contact.getPhoneNumber())));
         }
 
     }
@@ -199,8 +200,12 @@ public class ContactList implements  Serializable {
         System.out.print("Enter a name you'd like to search: ");
         String input = this.inputScanner.nextLine();
         var found = this.contactList.stream().filter((Contact contact) -> contact.getName().equals(input));
+        System.out.printf("%-20s | %-20s|\n","Name","Phone Number");
+        System.out.printf("%s\n","-".repeat(44));
         found.forEach((Contact contact) -> {
-            System.out.println(contact.getName() + "|" + contact.getPhoneNumber());
+//            System.out.println(contact.getName() + "|" + contact.getPhoneNumber());
+            System.out.printf("%-20s | %-20s|\n",contact.getName(),formatNumber(extractInt(contact.getPhoneNumber())));
+
         });
     }
 
@@ -212,21 +217,39 @@ public class ContactList implements  Serializable {
         while (inLoop) {
             int choice = menuDisplay();
             switch(choice) {
-                case 1: displayContacts(false);
+                case 1:
+                    displayContacts(false);
                     break;
-                case 2: addContact();
+                case 2: //Add Contact
+                    addContact();
                     break;
-                case 3: searchContact();
+                case 3:
+                    searchContact();
                     break;
-                case 4: displayContacts(true);
+                case 4:
+                    displayContacts(true);
                     int indexPicked = this.inputScanner.nextInt();
                     this.inputScanner.nextLine();
                     deleteContact(indexPicked);
                     break;
-                case 5: displayContacts(true);
+                case 5: //Edit Contact
+                    displayContacts(true);
+                    System.out.print("Which contact would you like to edit: ");
                     int inP = this.inputScanner.nextInt(); //inP = Index picked
                     this.inputScanner.nextLine();
-                    editContact(inP);
+                    Contact gatheredContact = editContact(inP);
+
+                    var numbersOnly = extractInt(gatheredContact.getPhoneNumber());
+
+                    //Check phone number length is less than 10 digits
+                    if(numbersOnly.length() != 7 && numbersOnly.length() != 10){
+                        System.out.println("Please enter a valid phone number either 7 or 10 digits long.");
+                    }else {
+                        this.contactList.get(inP).setName(gatheredContact.getName());
+                        this.contactList.get(inP).setPhoneNumber(formatNumber(gatheredContact.getPhoneNumber()));
+                        writeAllContacts();
+                    }
+                    break;
                 case 6: inLoop = false;
                     break;
                 default:
