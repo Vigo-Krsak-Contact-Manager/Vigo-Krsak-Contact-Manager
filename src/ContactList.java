@@ -8,10 +8,13 @@ import java.util.Scanner;
 
 @SuppressWarnings({"unchecked"})
 public class ContactList implements  Serializable {
+
     private List<Contact> contactList;
+
     private final Scanner inputScanner;
 
     public ContactList(Scanner inputScanner){
+
         try {
             //Create the directory if it does not exist
             Path dataDirectoryPath = Paths.get("data");
@@ -24,16 +27,21 @@ public class ContactList implements  Serializable {
             if(Files.notExists(filePath)){
                 Files.createFile(filePath);
             }
+
         }catch(Exception e){
+
             System.out.println(e.getMessage());
+
         }
 
         this.contactList = new ArrayList<>();
         this.inputScanner = inputScanner;
         readAllContent();
+
     }
 
     public Contact readInContact(){
+
         var newContact = new Contact("","");
 
         System.out.print("Please enter your name: ");
@@ -43,10 +51,12 @@ public class ContactList implements  Serializable {
 
         newContact.setName(personName);
         newContact.setPhoneNumber(personPhoneNumber);
+
         return newContact;
     }
 
     public void writeAllContacts() {
+
         try {
             //Get a path to the file
             Path filepath = Paths.get("data", "contacts.txt");
@@ -68,10 +78,13 @@ public class ContactList implements  Serializable {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+
     }
 
     public void readAllContent() {
+
         System.out.println("Reading the persisted data file contacts.txt");
+
         try {
             //Get the path to the file
             Path contactPath = Paths.get("data", "contacts.txt");
@@ -107,6 +120,7 @@ public class ContactList implements  Serializable {
 
         Contact newContact = readInContact();
         List<Contact> matches = this.contactList.stream().filter((Contact contact)->contact.getName().equalsIgnoreCase(newContact.getName())).toList();
+
         if (matches.size() > 0) {
             System.out.println("This contact name already exists, try again.");
             return;
@@ -127,18 +141,20 @@ public class ContactList implements  Serializable {
 
     // method to edit contact
     public Contact editContact() {
+
         System.out.print("Edit the contact name: ");
         String newName = this.inputScanner.nextLine();
         System.out.print("Edit the contact phone number: ");
         String newPhone = this.inputScanner.nextLine();
-        //Format the number before putting it in the Contact
-//        newPhone = formatNumber(extractInt(newPhone));
+
         //Make the contact
         return new Contact(newName,newPhone);
+
     }
 
     // method to create menu
     public int menuDisplay() {
+
         System.out.println("1. View contacts.");
         System.out.println("2. Add a new contact.");
         System.out.println("3. Search a contact name.");
@@ -146,9 +162,12 @@ public class ContactList implements  Serializable {
         System.out.println("5. Edit an existing contact.");
         System.out.println("6. Exit.");
         System.out.print("Enter an option (1, 2, 3, 4, 5, or 6): ");
+
         int userSelect = this.inputScanner.nextInt();
         this.inputScanner.nextLine();
+
         return userSelect;
+
     }
 
     // method to separate numbers from string
@@ -163,6 +182,7 @@ public class ContactList implements  Serializable {
             return " -1 ";
 
         return str;
+
     }
 
     // method to return formatted phone number
@@ -175,15 +195,19 @@ public class ContactList implements  Serializable {
         } else {
             number = phoneNumber.replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1) $2-$3");
         }
+
         return number;
+
     }
 
     // method to display contacts
     public void displayContacts(boolean displayNumbers) {
+
         System.out.printf("%-20s | %-20s|\n","Name","Phone Number");
         System.out.printf("%s\n","-".repeat(44));
-//        System.out.printf("%-42s","-");
+
         int index = 0;
+
         for(Contact contact: this.contactList) {
             if (displayNumbers) {
                 System.out.printf("%d-", index++);
@@ -195,16 +219,20 @@ public class ContactList implements  Serializable {
 
     // method to search a contact
     public void searchContact() {
+
         System.out.print("Enter a name you'd like to search: ");
         String input = this.inputScanner.nextLine();
-        var found = this.contactList.stream().filter((Contact contact) -> contact.getName().equals(input));
+
+        var found = this.contactList.stream().filter((Contact contact) -> contact.getName().equalsIgnoreCase(input));
+
         System.out.printf("%-20s | %-20s|\n","Name","Phone Number");
         System.out.printf("%s\n","-".repeat(44));
+
         found.forEach((Contact contact) -> {
-//            System.out.println(contact.getName() + "|" + contact.getPhoneNumber());
             System.out.printf("%-20s | %-20s|\n",contact.getName(),formatNumber(extractInt(contact.getPhoneNumber())));
 
         });
+
     }
 
     // method to call menu and access contacts
@@ -241,9 +269,12 @@ public class ContactList implements  Serializable {
                         this.contactList.get(inP).setPhoneNumber(formatNumber(gatheredContact.getPhoneNumber()));
                         writeAllContacts();
                     }
+
                 }
                 case 6 -> inLoop = false;
+
                 default -> System.out.println("Please enter a valid command.");
+
             }
 
         }
